@@ -112,6 +112,17 @@ jobs:
            cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
            patch -p1 -F 3 < syscall_hooks.patch
            echo "完成"
+
+      - name: Apply HMBird GKI patch
+        run: |
+         cd kernel_workspace/kernel_platform/common/drivers
+         git clone https://github.com/HanKuCha/HMBird-GKI-patch.git
+         if ! grep -q "hmbird_patch.o" Makefile; then
+         echo "obj-y += hmbird_patch.o" >> Makefile
+         fi
+         cd ../../../
+         git add -A
+         git commit -m "Add HMBird GKI patch" || true
       
       
 
@@ -199,7 +210,7 @@ jobs:
           sudo apt install libelf-dev
           ccache -s
           cd kernel_workspace/kernel_platform/common
-          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=ccache clang RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld  HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error gki_defconfig all
+          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld  HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error gki_defconfig all
           ccache -s
       - name: Apply Linux Patch
         run: |
